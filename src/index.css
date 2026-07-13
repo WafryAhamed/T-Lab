@@ -1,0 +1,50 @@
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+:root {
+  --tl-bg: #FFFFFF;
+  --tl-card: #F5F5F5;
+  --tl-text: #000000;
+  --tl-secondary: #2C2C2C;
+  --tl-border: #E5E5E5;
+  --tl-accent: #FFAB00;
+}
+.dark {
+  --tl-bg: #000000;
+  --tl-card: #2C2C2C;
+  --tl-text: #FFFFFF;
+  --tl-secondary: #F5F5F5;
+  --tl-border: #3A3A3A;
+  --tl-accent: #FFAB00;
+}
+html, body, #root {
+  height: 100%;
+}
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--tl-bg);
+  color: var(--tl-text);
+}
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tl-border);
+  border-radius: 8px;
+}
