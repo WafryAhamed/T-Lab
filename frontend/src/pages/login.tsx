@@ -26,8 +26,7 @@ export default function LoginPage() {
       const data = await loginUser({ email, password, remember_me: rememberMe });
       login(data.user ?? null);
       toast.success(data.message || 'Signed in successfully.');
-      const redirectPath = data.user?.role === 'Administrator' ? '/admin/dashboard' : '/dashboard';
-      router.replace(redirectPath);
+      router.replace('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in.');
       toast.error(err instanceof Error ? err.message : 'Unable to sign in.');
