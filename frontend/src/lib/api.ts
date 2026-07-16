@@ -44,6 +44,18 @@ export async function getUsers(params: { perPage?: number } = {}) {
   return request(`/users?${q.toString()}`, { method: 'GET' }, true);
 }
 
+export async function createUser(payload: Record<string, any>) {
+  return request('/users', { method: 'POST', body: JSON.stringify(payload) }, true);
+}
+
+export async function updateUser(id: string, payload: Record<string, any>) {
+  return request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, true);
+}
+
+export async function deleteUser(id: string) {
+  return request(`/users/${id}`, { method: 'DELETE' }, true);
+}
+
 export async function getTasks(params: { search?: string; status?: string; project_id?: string; perPage?: number } = {}) {
   const query = new URLSearchParams();
   if (params.search) query.set('search', params.search);

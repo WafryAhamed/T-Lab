@@ -28,8 +28,7 @@ class UserController extends Controller
 
     public function show(Request $request, $id)
     {
-        $currentUser = $request->user();
-        if ($currentUser?->role !== 'Administrator' && $currentUser?->id != $id) {
+        if ($request->user()?->role !== 'Administrator') {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -47,7 +46,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'role' => 'sometimes|required|string|in:Administrator,Project Manager,Team Member',
+            'status' => 'sometimes|required|string|in:Active,Inactive',
+            'phone' => 'nullable|string|max:20',
+            'department' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
         ]);
+
+        $data['email'] = mb_strtolower(trim($data['email']));
 
         return DB::transaction(function () use ($data, $request) {
             $data['password'] = bcrypt($data['password']);
@@ -65,8 +71,7 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        $currentUser = $request->user();
-        if ($currentUser?->role !== 'Administrator' && $currentUser?->id != $id) {
+        if ($request->user()?->role !== 'Administrator') {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -75,7 +80,16 @@ class UserController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,'.$id,
             'password' => 'nullable|string|min:6',
+            'role' => 'sometimes|required|string|in:Administrator,Project Manager,Team Member',
+            'status' => 'sometimes|required|string|in:Active,Inactive',
+            'phone' => 'nullable|string|max:20',
+            'department' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
         ]);
+
+        if (isset($data['email'])) {
+            $data['email'] = mb_strtolower(trim($data['email']));
+        }
 
         return DB::transaction(function () use ($user, $data, $request) {
             $old = $user->getOriginal();

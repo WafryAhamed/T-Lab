@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner';
 import { useData } from '../context/DataContext';
 import { Role, User, UserStatus } from '../types';
+import { createUser, deleteUser, updateUser } from '../lib/api';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -104,43 +105,90 @@ export function Users() {
     setErrors(e);
     return Object.keys(e).length === 0;
   };
-  const save = () => {
+  const save = async () => {
     if (!validate()) return;
     setSaving(true);
-    setTimeout(() => {
+
+    try {
       if (editing) {
+        const updated = await updateUser(editing.id, {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          department: form.department,
+          city: form.city,
+          role: form.role,
+          status: form.status,
+        });
+
         setUsers((l) =>
-        l.map((u) =>
-        u.id === editing.id ?
-        {
-          ...u,
-          ...form
-        } :
-        u
-        )
+          l.map((u) =>
+            u.id === editing.id
+              ? {
+                  ...u,
+                  ...updated,
+                  phone: updated.phone ?? u.phone,
+                  department: updated.department ?? u.department,
+                  city: updated.city ?? u.city,
+                  role: updated.role ?? u.role,
+                  status: updated.status ?? u.status,
+                }
+              : u
+          )
         );
         toast.success('User updated successfully');
       } else {
+        const created = await createUser({
+          name: form.name,
+          email: form.email,
+          password: 'TempPass123!',
+          phone: form.phone,
+          department: form.department,
+          city: form.city,
+          role: form.role,
+          status: form.status,
+        });
+
         setUsers((l) => [
-        ...l,
-        {
-          id: `u${Date.now()}`,
-          avatarColor: '#2C2C2C',
-          skills: [],
-          experience: 'New member · LankaTech Solutions',
-          ...form
-        }]
-        );
+          ...l,
+          {
+            id: created.id,
+            avatarColor: '#2C2C2C',
+            skills: [],
+            experience: 'New member · LankaTech Solutions',
+            ...created,
+            phone: created.phone ?? form.phone,
+            department: created.department ?? form.department,
+            city: created.city ?? form.city,
+            role: created.role ?? form.role,
+            status: created.status ?? form.status,
+          },
+        ]);
         toast.success('User added successfully');
       }
-      setSaving(false);
+
       setModalOpen(false);
-    }, 700);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to save user';
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
   };
-  const remove = () => {
+
+  const remove = async () => {
     if (!deleteId) return;
-    setUsers((l) => l.filter((u) => u.id !== deleteId));
-    toast.success('User deleted');
+
+    try {
+      await deleteUser(deleteId);
+      setUsers((l) => l.filter((u) => u.id !== deleteId));
+      toast.success('User deleted');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to delete user';
+      toast.error(message);
+    } finally {
+      setDeleteId(null);
+    }
   };
   return (
     <div>

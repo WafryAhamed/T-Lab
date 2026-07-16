@@ -50,7 +50,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Signed in successfully.',
             'token' => $token,
-            'user' => $user->only(['id', 'name', 'email', 'role', 'status']),
+            'user' => $user->only(['id', 'name', 'email', 'role', 'status', 'phone', 'department', 'city']),
         ]);
     }
 
@@ -138,7 +138,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Account created successfully.',
-            'user' => $user->only(['id', 'name', 'email', 'role', 'status']),
+            'user' => $user->only(['id', 'name', 'email', 'role', 'status', 'phone', 'department', 'city']),
         ], 201);
     }
 
@@ -161,7 +161,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        return response()->json(['user' => $user?->only(['id', 'name', 'email', 'role', 'status'])]);
+        return response()->json(['user' => $user?->only(['id', 'name', 'email', 'role', 'status', 'phone', 'department', 'city'])]);
     }
 
     public function requestForgotOtp(ForgotPasswordRequest $request)
