@@ -1,0 +1,8 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "composer install --no-dev --optimize-autoloader && npm install && npm run build"
+
+[deploy]
+preDeployCommand = "php artisan migrate --force"
+# Start command is intentionally omitted so Railpack uses its robust production web server (Nginx + PHP-FPM or FrankenPHP)
+# rather than the single-threaded development server.
