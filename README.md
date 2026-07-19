@@ -14,7 +14,7 @@ T-Lab is a full-stack application with a Laravel backend, a Next.js frontend, an
 
 ```text
 T-Lab/
-├── backend/                 # Laravel backend
+├── backend/                 # Laravel backend (deployed to Railway)
 │   ├── app/                 # Controllers, models, providers
 │   ├── config/              # Laravel configuration
 │   ├── database/            # Migrations and seeders
@@ -22,11 +22,14 @@ T-Lab/
 │   ├── resources/           # Views, CSS, JS assets
 │   ├── routes/              # Backend routes
 │   ├── tests/               # Backend tests
-│   ├── .env                 # Local backend environment
-│   └── .env.example         # Backend env template
-├── frontend/                # Next.js frontend
+│   ├── nixpacks.toml        # Railway build configuration
+│   ├── railway.toml         # Railway deployment config
+│   ├── .env.example         # Backend env template
+│   └── composer.json        # PHP dependencies
+├── frontend/                # Next.js frontend (deployed to Vercel)
 │   ├── public/              # Static assets
 │   ├── src/                 # Pages, components, context, etc.
+│   ├── next.config.js       # Next.js config
 │   ├── package.json         # Frontend dependencies
 │   └── .env.example         # Frontend env template
 ├── run-dev.bat              # Quick start script for Windows
@@ -35,39 +38,22 @@ T-Lab/
 
 ## Prerequisites
 
-Install these before starting the app:
+Install these before starting the app locally:
 
-- PHP 8.3+
+- PHP 8.4+
 - Composer
 - Node.js 18+
 - npm
 - PostgreSQL server
 - PHP PostgreSQL extension enabled (pdo_pgsql and pgsql)
 
-## PostgreSQL Setup
+## Local Development
+
+### PostgreSQL Setup
 
 Create a PostgreSQL database named `t_lab` and make sure your PostgreSQL user is available.
 
-Use these values in the backend environment file:
-
-```env
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=t_lab
-DB_USERNAME=postgres
-DB_PASSWORD=2001
-```
-
-## Deployment on Railway
-
-This project is deployed through Railway using Nixpacks rather than Docker. The build uses the root [nixpacks.toml](nixpacks.toml) configuration to install the backend PHP dependencies, install the frontend Node dependencies, build the frontend assets, and start the Laravel app with migrations and Laravel cache warmup.
-
-No Dockerfiles, Docker Compose files, or container-specific scripts are used in this repository.
-
-## Quick Start on Windows
-
-### Option 1: Use the batch file
+### Quick Start (Windows)
 
 From the project root, run:
 
@@ -79,7 +65,7 @@ This opens two terminals:
 - Laravel backend at http://127.0.0.1:8000
 - Next.js frontend at http://localhost:3000
 
-### Option 2: Start manually
+### Manual Start
 
 Backend:
 
@@ -100,102 +86,81 @@ npm install
 npm run dev
 ```
 
-## Backend Commands
+## Deployment
 
-```bat
-cd backend
-php artisan migrate
-php artisan test
-php artisan serve
-```
+### Architecture
 
-## Frontend Commands
+- **Frontend** → Vercel (Next.js)
+- **Backend** → Railway (Laravel + Nixpacks)
+- **Database** → Railway PostgreSQL plugin
 
-```bat
-cd frontend
-npm install
-npm run dev
-npm run build
-npm run start
-npm run lint
-```
+### Deploy Backend to Railway
 
-Administrator 1:
-  Name: Nimal Perera
-  Email: admin1@tlab.com
-  Password: Admin@123
-  Role: Administrator
+1. Create a new project on [Railway](https://railway.app)
+2. Add a **PostgreSQL** plugin — Railway will auto-provide `DATABASE_URL`
+3. Add a new service → connect your GitHub repository
+4. In the service settings, set **Root Directory** to `backend`
+5. Add these environment variables in the Railway dashboard:
 
-Administrator 2:
-  Name: Kasun Fernando
-  Email: admin2@tlab.com
-  Password: Admin@123
-  Role: Administrator
+| Variable | Value |
+|----------|-------|
+| `APP_KEY` | Generate with `php artisan key:generate --show` |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | Your Railway backend URL (e.g. `https://t-lab-backend.up.railway.app`) |
+| `FRONTEND_URL` | Your Vercel frontend URL (e.g. `https://t-lab.vercel.app`) |
+| `DB_CONNECTION` | `pgsql` |
+| `JWT_SECRET` | A random 64-character string |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key |
+| `RESEND_API_KEY` | Your Resend API key |
+| `MAIL_FROM_ADDRESS` | Your verified sender email |
 
-Project Manager:
-  Name: Chamith Jayasinghe
-  Email: manager@tlab.com
-  Password: Manager@123
-  Role: Project Manager
+Railway auto-provides `DATABASE_URL` from the PostgreSQL plugin. The backend reads it via `DB_URL=${DATABASE_URL}` in the env config.
 
-Team Member:
-  Name: Sahan Wickramasinghe
-  Email: member@tlab.com
-  Password: Member@123
-  Role: Team Member
+### Deploy Frontend to Vercel
 
+1. Import the repo on [Vercel](https://vercel.com)
+2. Set **Root Directory** to `frontend`
+3. Framework preset: **Next.js** (auto-detected)
+4. Add this environment variable:
 
-  Technology	Version	Purpose
-Next.js	14.2.15	React framework (Pages Router)
-React	18.3.1	UI library
-TypeScript	5.5.4	Type safety
-Tailwind CSS	3.4.17	Utility-first styling
-Framer Motion	11.5.4	Animations
-Lucide React	0.522.0	Icons
-Recharts	2.12.7	Charts/data visualization
-Sonner	2.0.1	Toast notifications
-PostCSS + Autoprefixer	—	CSS processing
-Google Fonts	—	Space Grotesk + Inter
-Backend
-Technology	Version	Purpose
-Laravel	13.8	PHP web framework
-PHP	8.3+	Server-side language
-Vite	8.0.0	Asset bundling
-Tailwind CSS	4.0.0	Backend styling
-JWT Auth	tymon/jwt-auth	Token authentication
-Laravel Permission	spatie/laravel-permission	RBAC
-Resend PHP SDK	1.5+	Transactional email
-GuzzleHTTP	—	HTTP client
-PHPUnit	12.5.12	Testing
-Mockery	1.6	Test mocking
-Laravel Pint	1.27	Code style fixer
-Concurrently	9.0.1	Run multiple dev commands
-Database
-Technology	Purpose
-PostgreSQL	Primary database
-Redis	Cache/queue driver
-Laravel Eloquent	ORM
-Laravel Migrations	Schema versioning
-DevOps & Tools
-Technology	Purpose
-Git	Version control
-Windows/PowerShell	Dev environment
-AWS S3	File storage (configured)
-Security
-JWT stateless API auth
-Bcrypt password hashing (12 rounds)
-OTP email verification (6-digit, 5-min expiry)
-CSRF protection, rate limiting, CORS
-This is a full-stack Laravel + Next.js application with PostgreSQL, JWT auth, and Tailwind CSS throughout.
+| Variable | Value |
+|----------|-------|
+| `NEXT_PUBLIC_API_URL` | Your Railway backend URL (e.g. `https://t-lab-backend.up.railway.app`) |
 
+5. Deploy
 
-cd backend
-composer install
-copy .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+### Important Notes
 
-cd ../frontend
-npm install
-npm run dev
+- The backend CORS config reads `FRONTEND_URL` to allow requests from Vercel. Make sure this matches exactly.
+- The backend uses `php artisan serve` on Railway (configured in `railway.toml`).
+- Migrations run automatically on each deploy via the `preDeployCommand` in `railway.toml`.
+
+## Test Accounts
+
+| Role | Name | Email | Password |
+|------|------|-------|----------|
+| Administrator | Nimal Perera | admin1@tlab.com | Admin@123 |
+| Administrator | Kasun Fernando | admin2@tlab.com | Admin@123 |
+| Project Manager | Chamith Jayasinghe | manager@tlab.com | Manager@123 |
+| Team Member | Sahan Wickramasinghe | member@tlab.com | Member@123 |
+
+## Tech Versions
+
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Next.js | 16.2.10 | React framework (Pages Router) |
+| React | 18.3.1 | UI library |
+| TypeScript | 5.5.4 | Type safety |
+| Tailwind CSS | 3.4.17 | Utility-first styling |
+| Framer Motion | 11.5.4 | Animations |
+| Lucide React | 0.522.0 | Icons |
+| Recharts | 2.12.7 | Charts/data visualization |
+| Sonner | 2.0.1 | Toast notifications |
+| Laravel | 13.8 | PHP web framework |
+| PHP | 8.4+ | Server-side language |
+| JWT Auth | tymon/jwt-auth | Token authentication |
+| Laravel Permission | spatie/laravel-permission | RBAC |
+| Resend PHP SDK | 1.5+ | Transactional email |
+| PHPUnit | 12.5.12 | Testing |
+| PostgreSQL | — | Primary database |
